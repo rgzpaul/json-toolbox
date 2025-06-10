@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Toolbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .drop-zone {
+            border: 2px dashed #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.dragover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 20px !important;
+        }
+
+        .sortable-header:hover {
+            background-color: #f3f4f6;
+        }
+
+        .sort-indicator {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .sort-indicator.asc::after {
+            content: '▲';
+        }
+
+        .sort-indicator.desc::after {
+            content: '▼';
+        }
+
+        #jsonTable tbody tr:nth-child(even).striped,
+        #jsonTableFull tbody tr:nth-child(even).striped {
+            background-color: #f9fafb;
+        }
+
+        #jsonTable tbody tr:hover,
+        #jsonTableFull tbody tr:hover {
+            background-color: #eff6ff;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">JSON Toolbox</h1>
+            <p class="text-gray-600">Convert & Manage JSON data</p>
+        </div>
+
+        <!-- Conversion Mode Toggle -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-white rounded-lg p-1 shadow-md">
+                <button id="csvToJsonBtn"
+                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white">
+                    CSV → JSON
+                </button>
+                <button id="jsonToCsvBtn"
+                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    JSON → CSV
+                </button>
+                <button id="sortJsonBtn"
+                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    Sort
+                </button>
+                <button id="objectRemoverBtn"
+                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    Remove
+                </button>
+                <button id="tableJsonBtn"
+                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    Table
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="grid lg:grid-cols-2 gap-8">
+            <!-- Input Section -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="inputTitle" class="text-xl font-semibold text-gray-800">Input CSV</h2>
+                    <button id="clearInput" class="text-sm text-red-500 hover:text-red-700 transition-colors">
+                        Clear
+                    </button>
+                </div>
+
+                <!-- File Drop Zone -->
+                <div id="dropZone"
+                    class="drop-zone rounded-lg p-8 text-center mb-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                    <div class="text-gray-500">
+                        <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p class="text-lg mb-2">Drop your file here or click to browse</p>
+                        <p class="text-sm">Supports .csv, .json, and .txt files</p>
+                    </div>
+                    <input type="file" id="fileInput" class="hidden" accept=".csv,.json,.txt">
+                </div>
+
+                <!-- Text Input -->
+                <textarea id="inputText" placeholder="Or paste your CSV data here..."
+                    class="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"></textarea>
+
+                <!-- Input Options -->
+                <div id="csvOptions" class="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">CSV Options</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">Delimiter</label>
+                            <select id="delimiter" class="w-full p-2 text-sm border border-gray-300 rounded">
+                                <option value=",">Comma (,)</option>
+                                <option value=";">Semicolon (;)</option>
+                                <option value="\t">Tab</option>
+                                <option value="|">Pipe (|)</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="hasHeaders" checked class="mr-2">
+                            <label for="hasHeaders" class="text-sm text-gray-700">Has headers</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="jsonOptions" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">JSON Options</h3>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="prettyJson" checked class="mr-2">
+                        <label for="prettyJson" class="text-sm text-gray-700">Pretty format (indented)</label>
+                    </div>
+                </div>
+
+                <div id="sortOptions" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Sort Options</h3>
+                    <div id="sortCriteria" class="space-y-3">
+                        <!-- Sort criteria will be added dynamically -->
+                    </div>
+                    <div class="mt-3 flex items-center gap-2">
+                        <button id="addSortCriteria"
+                            class="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add sort criteria
+                        </button>
+                    </div>
+                    <div class="mt-3 flex items-center">
+                        <input type="checkbox" id="sortPrettyJson" checked class="mr-2">
+                        <label for="sortPrettyJson" class="text-sm text-gray-700">Pretty format (indented)</label>
+                    </div>
+                </div>
+
+                <div id="tableOptions" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Table Options</h3>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="showRowNumbers" checked class="mr-2">
+                            <label for="showRowNumbers" class="text-sm text-gray-700">Show row numbers</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="striped" checked class="mr-2">
+                            <label for="striped" class="text-sm text-gray-700">Striped rows</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Object Remover Options -->
+                <div id="objectRemoverOptions" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Removal Options</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">Remove objects where:</label>
+                            <div class="flex items-center gap-2">
+                                <select id="removalKey" class="flex-1 p-2 text-sm border border-gray-300 rounded">
+                                    <option value="">Select a key...</option>
+                                </select>
+                                <select id="removalOperator" class="w-32 p-2 text-sm border border-gray-300 rounded">
+                                    <option value="exists">exists</option>
+                                    <option value="not_exists">doesn't exist</option>
+                                    <option value="equals">equals</option>
+                                    <option value="not_equals">doesn't equal</option>
+                                    <option value="contains">contains</option>
+                                    <option value="not_contains">doesn't contain</option>
+                                </select>
+                                <input type="text" id="removalValue" placeholder="Value"
+                                    class="flex-1 p-2 text-sm border border-gray-300 rounded hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-center">
+                        <input type="checkbox" id="removerPrettyJson" checked class="mr-2">
+                        <label for="removerPrettyJson" class="text-sm text-gray-700">Pretty format (indented)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="outputTitle" class="text-xl font-semibold text-gray-800">Output JSON</h2>
+                    <div id="outputButtons" class="flex gap-2">
+                        <button id="copyOutput"
+                            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
+                            Copy
+                        </button>
+                        <button id="downloadOutput"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                            Download
+                        </button>
+                    </div>
+                </div>
+
+                <textarea id="outputText" readonly placeholder="Converted data will appear here..."
+                    class="w-full h-80 p-4 border border-gray-300 rounded-lg resize-none bg-gray-50 font-mono text-sm"></textarea>
+
+                <!-- Conversion Stats -->
+                <div id="conversionStats" class="mt-4 p-3 bg-blue-50 rounded-lg hidden">
+                    <div class="flex justify-between text-sm text-blue-800">
+                        <span id="recordCount"></span>
+                        <span id="processingTime"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table JSON Layout -->
+        <div id="tableJsonLayout" class="hidden">
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <!-- Input Section for Table Mode -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Input JSON</h2>
+                        <button id="clearInputTable" class="text-sm text-red-500 hover:text-red-700 transition-colors">
+                            Clear
+                        </button>
+                    </div>
+
+                    <!-- File Drop Zone for Table - Now Consistent with Main Drop Zone -->
+                    <div id="dropZoneTable"
+                        class="drop-zone rounded-lg p-8 text-center mb-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div class="text-gray-500">
+                            <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p class="text-lg mb-2">Drop your file here or click to browse</p>
+                            <p class="text-sm">Supports .csv, .json, and .txt files</p>
+                        </div>
+                    </div>
+
+                    <!-- Text Input for Table -->
+                    <textarea id="inputTextTable" placeholder="Or paste your JSON array data here..."
+                        class="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"></textarea>
+
+                    <!-- Table Options -->
+                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Table Options</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="showRowNumbersTable" checked class="mr-2">
+                                <label for="showRowNumbersTable" class="text-sm text-gray-700">Show row numbers</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="stripedTable" checked class="mr-2">
+                                <label for="stripedTable" class="text-sm text-gray-700">Striped rows</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Section for Table Mode -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Table Statistics</h2>
+                    <div id="tableStats" class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                            <span class="text-sm font-medium text-blue-800">Records</span>
+                            <span id="tableRecordCount" class="text-sm text-blue-600">0</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <span class="text-sm font-medium text-green-800">Columns</span>
+                            <span id="tableColumnCount" class="text-sm text-green-600">0</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                            <span class="text-sm font-medium text-purple-800">Processing Time</span>
+                            <span id="tableProcessingTime" class="text-sm text-purple-600">0ms</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Width Table Section -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Table View</h2>
+                    <div class="text-sm text-gray-500">
+                        Click column headers to sort
+                    </div>
+                </div>
+
+                <!-- Table Output -->
+                <div class="border border-gray-300 rounded-lg overflow-auto bg-white" style="max-height: 600px;">
+                    <table id="jsonTableFull" class="w-full text-sm">
+                        <thead id="tableHeadersFull" class="bg-gray-50 sticky top-0">
+                            <!-- Headers will be populated dynamically -->
+                        </thead>
+                        <tbody id="tableBodyFull">
+                            <!-- Data will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Messages -->
+        <div id="errorMessage" class="mt-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded hidden">
+            <div class="flex">
+                <svg class="h-5 w-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" />
+                </svg>
+                <span id="errorText"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+
+</html>
