@@ -26,7 +26,6 @@ class CSVJSONConverter {
             tableBodyFull: document.getElementById('tableBodyFull'),
             fileInput: document.getElementById('fileInput'),
             dropZone: document.getElementById('dropZone'),
-            dropZoneTable: document.getElementById('dropZoneTable'),
             csvOptions: document.getElementById('csvOptions'),
             jsonOptions: document.getElementById('jsonOptions'),
             sortOptions: document.getElementById('sortOptions'),
@@ -117,28 +116,6 @@ class CSVJSONConverter {
                 this.handleFile(files[0]);
             }
         });
-
-        // Table drop zone
-        const dropZoneTable = this.elements.dropZoneTable;
-        dropZoneTable.addEventListener('click', () => this.elements.fileInput.click());
-
-        dropZoneTable.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZoneTable.classList.add('dragover');
-        });
-
-        dropZoneTable.addEventListener('dragleave', () => {
-            dropZoneTable.classList.remove('dragover');
-        });
-
-        dropZoneTable.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZoneTable.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                this.handleTableFile(files[0]);
-            }
-        });
     }
 
     switchMode(mode) {
@@ -162,18 +139,23 @@ class CSVJSONConverter {
         this.elements.tableOptions.classList.add('hidden');
         this.elements.objectRemoverOptions.classList.add('hidden');
 
+        // Get dropzone text element
+        const dropZoneText = this.elements.dropZone.querySelector('p');
+
         if (mode === 'csvToJson') {
             this.elements.csvToJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
             this.elements.inputTitle.textContent = 'Input CSV';
             this.elements.outputTitle.textContent = 'Output JSON';
             this.elements.inputText.placeholder = 'Paste your CSV data here...';
             this.elements.csvOptions.classList.remove('hidden');
+            dropZoneText.textContent = 'Drop your .csv file here or click to browse';
         } else if (mode === 'jsonToCsv') {
             this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Output CSV';
             this.elements.inputText.placeholder = 'Paste your JSON data here...';
             this.elements.jsonOptions.classList.remove('hidden');
+            dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'sortJson') {
             this.elements.sortJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
             this.elements.inputTitle.textContent = 'Input JSON';
@@ -181,10 +163,12 @@ class CSVJSONConverter {
             this.elements.inputText.placeholder = 'Paste your JSON array data here...';
             this.elements.sortOptions.classList.remove('hidden');
             this.initializeSortCriteria();
+            dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'tableJson') {
             this.elements.tableJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
             this.elements.mainContent.classList.add('hidden');
             this.elements.tableJsonLayout.classList.remove('hidden');
+            dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'objectRemover') {
             this.elements.objectRemoverBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
             this.elements.inputTitle.textContent = 'Input JSON';
@@ -192,6 +176,7 @@ class CSVJSONConverter {
             this.elements.inputText.placeholder = 'Paste your JSON array data here...';
             this.elements.objectRemoverOptions.classList.remove('hidden');
             this.updateAvailableKeys();
+            dropZoneText.textContent = 'Drop your .json file here or click to browse';
         }
 
         this.clearInput();
