@@ -148,13 +148,18 @@ class CSVJSONConverter {
             this.elements.outputTitle.textContent = 'Output JSON';
             this.elements.inputText.placeholder = 'Paste your CSV data here...';
             this.elements.csvOptions.classList.remove('hidden');
+            this.elements.jsonOptions.classList.remove('hidden');
+            this.elements.csvOptions.querySelector('.grid').classList.remove('hidden');
+            this.elements.hasHeaders.parentElement.classList.remove('hidden');
             dropZoneText.textContent = 'Drop your .csv file here or click to browse';
         } else if (mode === 'jsonToCsv') {
             this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Output CSV';
             this.elements.inputText.placeholder = 'Paste your JSON data here...';
-            this.elements.jsonOptions.classList.remove('hidden');
+            this.elements.csvOptions.classList.remove('hidden');
+            this.elements.csvOptions.querySelector('.grid').classList.remove('hidden');
+            this.elements.hasHeaders.parentElement.classList.add('hidden');
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'sortJson') {
             this.elements.sortJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
