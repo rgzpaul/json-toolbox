@@ -59,7 +59,7 @@ class CSVJSONConverter {
             tableColumnCount: document.getElementById('tableColumnCount'),
             tableProcessingTime: document.getElementById('tableProcessingTime')
         };
-        
+
         this.sortCriteriaCount = 0;
         this.availableKeys = [];
         this.tableData = [];
@@ -99,7 +99,7 @@ class CSVJSONConverter {
         // Main drop zone
         const dropZone = this.elements.dropZone;
         dropZone.addEventListener('click', () => this.elements.fileInput.click());
-        
+
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('dragover');
@@ -121,7 +121,7 @@ class CSVJSONConverter {
         // Table drop zone
         const dropZoneTable = this.elements.dropZoneTable;
         dropZoneTable.addEventListener('click', () => this.elements.fileInput.click());
-        
+
         dropZoneTable.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZoneTable.classList.add('dragover');
@@ -143,25 +143,25 @@ class CSVJSONConverter {
 
     switchMode(mode) {
         this.currentMode = mode;
-        
+
         // Reset all button styles
         this.elements.csvToJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
         this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
         this.elements.sortJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
         this.elements.tableJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
         this.elements.objectRemoverBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
-        
+
         // Hide all layouts
         this.elements.mainContent.classList.remove('hidden');
         this.elements.tableJsonLayout.classList.add('hidden');
-        
+
         // Hide all options
         this.elements.csvOptions.classList.add('hidden');
         this.elements.jsonOptions.classList.add('hidden');
         this.elements.sortOptions.classList.add('hidden');
         this.elements.tableOptions.classList.add('hidden');
         this.elements.objectRemoverOptions.classList.add('hidden');
-        
+
         if (mode === 'csvToJson') {
             this.elements.csvToJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
             this.elements.inputTitle.textContent = 'Input CSV';
@@ -193,7 +193,7 @@ class CSVJSONConverter {
             this.elements.objectRemoverOptions.classList.remove('hidden');
             this.updateAvailableKeys();
         }
-        
+
         this.clearInput();
         this.convert();
     }
@@ -231,7 +231,7 @@ class CSVJSONConverter {
         const criteriaDiv = document.createElement('div');
         criteriaDiv.className = 'flex items-center gap-2 sort-criteria';
         criteriaDiv.setAttribute('data-criteria-id', criteriaId);
-        
+
         criteriaDiv.innerHTML = `
             <div class="flex-1">
                 <label class="block text-xs text-gray-600 mb-1">Sort by key</label>
@@ -254,21 +254,21 @@ class CSVJSONConverter {
                 </button>
             </div>
         `;
-        
+
         this.elements.sortCriteria.appendChild(criteriaDiv);
-        
+
         // Add event listeners
         const sortKeySelect = criteriaDiv.querySelector('.sort-key');
         const sortOrderSelect = criteriaDiv.querySelector('.sort-order');
         const removeButton = criteriaDiv.querySelector('.remove-criteria');
-        
+
         sortKeySelect.addEventListener('change', () => this.convert());
         sortOrderSelect.addEventListener('change', () => this.convert());
         removeButton.addEventListener('click', () => this.removeSortCriteria(criteriaDiv));
-        
+
         // Populate with available keys
         this.populateSortKeyOptions(sortKeySelect);
-        
+
         // Update remove button visibility
         this.updateRemoveButtonsVisibility();
     }
@@ -299,7 +299,7 @@ class CSVJSONConverter {
         }
 
         try {
-            const data = JSON.parse(inputText);
+            const data = this.normalizeToArray(JSON.parse(inputText));
             if (!Array.isArray(data) || data.length === 0) {
                 this.availableKeys = [];
                 this.updateAllSortKeyOptions();
@@ -341,7 +341,7 @@ class CSVJSONConverter {
     populateSortKeyOptions(selectElement) {
         const currentValue = selectElement.value;
         selectElement.innerHTML = '<option value="">Select a key...</option>';
-        
+
         if (this.availableKeys.length === 0) {
             const option = document.createElement('option');
             option.value = '';
@@ -350,7 +350,7 @@ class CSVJSONConverter {
             selectElement.appendChild(option);
             return;
         }
-        
+
         this.availableKeys.forEach(key => {
             const option = document.createElement('option');
             option.value = key;
@@ -366,7 +366,7 @@ class CSVJSONConverter {
         const select = this.elements.removalKey;
         const currentValue = select.value;
         select.innerHTML = '<option value="">Select a key...</option>';
-        
+
         if (this.availableKeys.length === 0) {
             const option = document.createElement('option');
             option.value = '';
@@ -375,7 +375,7 @@ class CSVJSONConverter {
             select.appendChild(option);
             return;
         }
-        
+
         this.availableKeys.forEach(key => {
             const option = document.createElement('option');
             option.value = key;
@@ -419,7 +419,7 @@ class CSVJSONConverter {
     csvToJson(csvText) {
         const delimiter = this.elements.delimiter.value === '\\t' ? '\t' : this.elements.delimiter.value;
         const hasHeaders = this.elements.hasHeaders.checked;
-        
+
         const lines = csvText.trim().split('\n');
         if (lines.length === 0) return [];
 
@@ -453,10 +453,10 @@ class CSVJSONConverter {
         const result = [];
         let current = '';
         let inQuotes = false;
-        
+
         for (let i = 0; i < line.length; i++) {
             const char = line[i];
-            
+
             if (char === '"') {
                 if (inQuotes && line[i + 1] === '"') {
                     current += '"';
@@ -471,7 +471,7 @@ class CSVJSONConverter {
                 current += char;
             }
         }
-        
+
         result.push(current);
         return result;
     }
@@ -487,17 +487,27 @@ class CSVJSONConverter {
         return value;
     }
 
+    normalizeToArray(data) {
+        if (Array.isArray(data)) return data;
+        if (typeof data === 'object' && data !== null) {
+            return Object.entries(data).map(([key, value]) =>
+                typeof value === 'object' ? { id: key, ...value } : { id: key, value }
+            );
+        }
+        return data;
+    }
+
     jsonToCsv(jsonText) {
-        const data = JSON.parse(jsonText);
+        const data = this.normalizeToArray(JSON.parse(jsonText));
         if (!Array.isArray(data) || data.length === 0) {
             throw new Error('JSON must be an array of objects');
         }
 
         const delimiter = this.elements.delimiter.value === '\\t' ? '\t' : this.elements.delimiter.value;
         const headers = Object.keys(data[0]);
-        
+
         let csv = headers.map(header => this.escapeCsvValue(header)).join(delimiter) + '\n';
-        
+
         data.forEach(row => {
             const values = headers.map(header => {
                 const value = row[header];
@@ -510,7 +520,7 @@ class CSVJSONConverter {
     }
 
     sortJson(jsonText) {
-        const data = JSON.parse(jsonText);
+        const data = this.normalizeToArray(JSON.parse(jsonText));
         if (!Array.isArray(data)) {
             throw new Error('JSON must be an array');
         }
@@ -518,11 +528,11 @@ class CSVJSONConverter {
         // Get all sort criteria
         const sortCriteria = [];
         const allCriteria = this.elements.sortCriteria.querySelectorAll('.sort-criteria');
-        
+
         allCriteria.forEach(criteriaDiv => {
             const sortKey = criteriaDiv.querySelector('.sort-key').value;
             const sortOrder = criteriaDiv.querySelector('.sort-order').value;
-            
+
             if (sortKey) {
                 sortCriteria.push({ key: sortKey, order: sortOrder });
             }
@@ -531,23 +541,23 @@ class CSVJSONConverter {
         if (sortCriteria.length === 0) {
             throw new Error('Please select at least one key to sort by');
         }
-        
+
         const sortedData = [...data].sort((a, b) => {
             for (const criteria of sortCriteria) {
                 let aVal = a[criteria.key];
                 let bVal = b[criteria.key];
-                
+
                 // Handle null/undefined values
                 if (aVal == null && bVal == null) continue;
                 if (aVal == null) return criteria.order === 'asc' ? -1 : 1;
                 if (bVal == null) return criteria.order === 'asc' ? 1 : -1;
-                
+
                 // Convert to strings for comparison if they're not numbers
                 if (typeof aVal !== 'number' || typeof bVal !== 'number') {
                     aVal = String(aVal).toLowerCase();
                     bVal = String(bVal).toLowerCase();
                 }
-                
+
                 if (aVal < bVal) return criteria.order === 'asc' ? -1 : 1;
                 if (aVal > bVal) return criteria.order === 'asc' ? 1 : -1;
                 // If equal, continue to next criteria
@@ -559,28 +569,28 @@ class CSVJSONConverter {
     }
 
     removeObjects(jsonText) {
-        const data = JSON.parse(jsonText);
+        const data = this.normalizeToArray(JSON.parse(jsonText));
         if (!Array.isArray(data)) {
             throw new Error('JSON must be an array');
         }
-        
+
         const key = this.elements.removalKey.value;
         const operator = this.elements.removalOperator.value;
         const value = this.elements.removalValue.value;
-        
+
         if (!key) {
             throw new Error('Please select a key to filter by');
         }
-        
+
         const filteredData = data.filter(item => {
             // Skip non-objects
             if (typeof item !== 'object' || item === null) {
                 return true;
             }
-            
+
             const hasKey = key in item;
             const itemValue = item[key];
-            
+
             switch (operator) {
                 case 'exists':
                     return !hasKey;
@@ -598,7 +608,7 @@ class CSVJSONConverter {
                     return true;
             }
         });
-        
+
         return filteredData;
     }
 
@@ -630,7 +640,7 @@ class CSVJSONConverter {
         if (showRowNumbers) {
             headerHtml += '<th class="p-3 text-left border-b border-gray-200 font-medium text-gray-700 bg-gray-50">#</th>';
         }
-        
+
         keys.forEach(key => {
             headerHtml += `
                 <th class="sortable-header p-3 text-left border-b border-gray-200 font-medium text-gray-700 bg-gray-50" data-column="${key}">
@@ -657,16 +667,16 @@ class CSVJSONConverter {
     renderTableBodyFull(keys) {
         const showRowNumbers = this.elements.showRowNumbersTable.checked;
         const striped = this.elements.stripedTable.checked;
-        
+
         let bodyHtml = '';
         this.tableData.forEach((item, index) => {
             const rowClass = striped ? 'striped' : '';
             bodyHtml += `<tr class="${rowClass}">`;
-            
+
             if (showRowNumbers) {
                 bodyHtml += `<td class="p-3 border-b border-gray-200 text-gray-600 text-sm">${index + 1}</td>`;
             }
-            
+
             keys.forEach(key => {
                 let value = item[key];
                 if (value === null || value === undefined) {
@@ -680,10 +690,10 @@ class CSVJSONConverter {
                 } else {
                     value = String(value);
                 }
-                
+
                 bodyHtml += `<td class="p-3 border-b border-gray-200 text-sm">${value}</td>`;
             });
-            
+
             bodyHtml += '</tr>';
         });
 
@@ -703,18 +713,18 @@ class CSVJSONConverter {
         this.tableData.sort((a, b) => {
             let aVal = a[column];
             let bVal = b[column];
-            
+
             // Handle null/undefined values
             if (aVal == null && bVal == null) return 0;
             if (aVal == null) return this.tableSortDirection === 'asc' ? -1 : 1;
             if (bVal == null) return this.tableSortDirection === 'asc' ? 1 : -1;
-            
+
             // Convert to strings for comparison if they're not numbers
             if (typeof aVal !== 'number' || typeof bVal !== 'number') {
                 aVal = String(aVal).toLowerCase();
                 bVal = String(bVal).toLowerCase();
             }
-            
+
             if (aVal < bVal) return this.tableSortDirection === 'asc' ? -1 : 1;
             if (aVal > bVal) return this.tableSortDirection === 'asc' ? 1 : -1;
             return 0;
@@ -724,7 +734,7 @@ class CSVJSONConverter {
         this.elements.tableHeadersFull.querySelectorAll('.sort-indicator').forEach(indicator => {
             indicator.className = 'sort-indicator';
         });
-        
+
         const activeHeader = this.elements.tableHeadersFull.querySelector(`[data-column="${column}"] .sort-indicator`);
         if (activeHeader) {
             activeHeader.className = `sort-indicator ${this.tableSortDirection}`;
@@ -742,14 +752,14 @@ class CSVJSONConverter {
 
     escapeCsvValue(value) {
         if (value === null || value === undefined) return '';
-        
+
         const stringValue = String(value);
         const delimiter = this.elements.delimiter.value === '\\t' ? '\t' : this.elements.delimiter.value;
-        
+
         if (stringValue.includes(delimiter) || stringValue.includes('"') || stringValue.includes('\n')) {
             return '"' + stringValue.replace(/"/g, '""') + '"';
         }
-        
+
         return stringValue;
     }
 
@@ -775,7 +785,7 @@ class CSVJSONConverter {
             if (this.currentMode === 'csvToJson') {
                 const jsonData = this.csvToJson(inputText);
                 recordCount = jsonData.length;
-                result = this.elements.prettyJson.checked 
+                result = this.elements.prettyJson.checked
                     ? JSON.stringify(jsonData, null, 2)
                     : JSON.stringify(jsonData);
             } else if (this.currentMode === 'jsonToCsv') {
@@ -785,20 +795,20 @@ class CSVJSONConverter {
             } else if (this.currentMode === 'sortJson') {
                 const sortedData = this.sortJson(inputText);
                 recordCount = sortedData.length;
-                result = this.elements.sortPrettyJson.checked 
+                result = this.elements.sortPrettyJson.checked
                     ? JSON.stringify(sortedData, null, 2)
                     : JSON.stringify(sortedData);
             } else if (this.currentMode === 'objectRemover') {
                 const filteredData = this.removeObjects(inputText);
                 recordCount = filteredData.length;
-                result = this.elements.removerPrettyJson.checked 
+                result = this.elements.removerPrettyJson.checked
                     ? JSON.stringify(filteredData, null, 2)
                     : JSON.stringify(filteredData);
             }
 
             this.elements.outputText.value = result;
             this.hideError();
-            
+
             const endTime = performance.now();
             this.showStats(recordCount, endTime - startTime);
 
@@ -823,13 +833,13 @@ class CSVJSONConverter {
         const startTime = performance.now();
 
         try {
-            const data = JSON.parse(inputText);
+            const data = this.normalizeToArray(JSON.parse(inputText));
             if (!Array.isArray(data)) {
                 throw new Error('JSON must be an array for table view');
             }
             this.createTable(data);
             this.hideError();
-            
+
             const endTime = performance.now();
             this.elements.tableProcessingTime.textContent = `${(endTime - startTime).toFixed(2)}ms`;
 
@@ -877,7 +887,7 @@ class CSVJSONConverter {
             const originalText = this.elements.copyOutput.textContent;
             this.elements.copyOutput.textContent = 'Copied!';
             this.elements.copyOutput.className = 'px-4 py-2 bg-green-600 text-white rounded-lg transition-colors text-sm';
-            
+
             setTimeout(() => {
                 this.elements.copyOutput.textContent = originalText;
                 this.elements.copyOutput.className = 'px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm';
@@ -903,7 +913,7 @@ class CSVJSONConverter {
             extension = 'csv';
             mimeType = 'text/csv';
         }
-        
+
         const blob = new Blob([output], { type: mimeType });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON Toolbox</title>
+    <link href="https://minisoft.it/icons/fix.png" rel="shortcut icon" type="image/x-icon" />
+    <link href="https://minisoft.it/icons/fix.png" rel="apple-touch-icon" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .drop-zone {
@@ -73,7 +75,7 @@
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Header -->
         <div class="text-center mb-8">
@@ -85,7 +87,7 @@
         <div class="flex justify-center mb-8">
             <div class="bg-white rounded-lg p-1 shadow-md">
                 <button id="csvToJsonBtn"
-                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white">
+                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white">
                     CSV → JSON
                 </button>
                 <button id="jsonToCsvBtn"
@@ -134,7 +136,7 @@
 
                 <!-- Text Input -->
                 <textarea id="inputText" placeholder="Or paste your CSV data here..."
-                    class="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"></textarea>
+                    class="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-slate-500 focus:border-transparent font-mono text-sm"></textarea>
 
                 <!-- Input Options -->
                 <div id="csvOptions" class="mt-4 p-4 bg-gray-50 rounded-lg">
@@ -171,7 +173,7 @@
                     </div>
                     <div class="mt-3 flex items-center gap-2">
                         <button id="addSortCriteria"
-                            class="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors">
+                            class="flex items-center gap-1 px-3 py-1 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
@@ -239,7 +241,7 @@
                             Copy
                         </button>
                         <button id="downloadOutput"
-                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                            class="px-4 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 transition-colors text-sm">
                             Download
                         </button>
                     </div>
@@ -249,8 +251,8 @@
                     class="w-full h-80 p-4 border border-gray-300 rounded-lg resize-none bg-gray-50 font-mono text-sm"></textarea>
 
                 <!-- Conversion Stats -->
-                <div id="conversionStats" class="mt-4 p-3 bg-blue-50 rounded-lg hidden">
-                    <div class="flex justify-between text-sm text-blue-800">
+                <div id="conversionStats" class="mt-4 p-3 bg-slate-50 rounded-lg hidden">
+                    <div class="flex justify-between text-sm text-slate-800">
                         <span id="recordCount"></span>
                         <span id="processingTime"></span>
                     </div>
@@ -285,7 +287,7 @@
 
                     <!-- Text Input for Table -->
                     <textarea id="inputTextTable" placeholder="Or paste your JSON array data here..."
-                        class="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"></textarea>
+                        class="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-slate-500 focus:border-transparent font-mono text-sm"></textarea>
 
                     <!-- Table Options -->
                     <div class="mt-4 p-4 bg-gray-50 rounded-lg">
@@ -307,9 +309,9 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <h2 class="text-xl font-semibold text-gray-800 mb-4">Table Statistics</h2>
                     <div id="tableStats" class="space-y-3">
-                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                            <span class="text-sm font-medium text-blue-800">Records</span>
-                            <span id="tableRecordCount" class="text-sm text-blue-600">0</span>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                            <span class="text-sm font-medium text-slate-800">Records</span>
+                            <span id="tableRecordCount" class="text-sm text-slate-600">0</span>
                         </div>
                         <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                             <span class="text-sm font-medium text-green-800">Columns</span>
