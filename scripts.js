@@ -497,6 +497,26 @@ class CSVJSONConverter {
         return data;
     }
 
+    denormalizeToObject(data, originalInput) {
+        try {
+            const original = JSON.parse(originalInput);
+            // Se l'input originale era un oggetto (non array), riconvertilo
+            if (!Array.isArray(original) && typeof original === 'object') {
+                const result = {};
+                data.forEach(item => {
+                    if (item.id) {
+                        const { id, ...rest } = item;
+                        result[id] = rest;
+                    }
+                });
+                return result;
+            }
+        } catch (e) {
+            // Se c'è un errore, ritorna l'array normale
+        }
+        return data;
+    }
+
     jsonToCsv(jsonText) {
         const data = this.normalizeToArray(JSON.parse(jsonText));
         if (!Array.isArray(data) || data.length === 0) {
@@ -794,16 +814,18 @@ class CSVJSONConverter {
                 recordCount = Math.max(0, lines.length - 1); // Subtract header row
             } else if (this.currentMode === 'sortJson') {
                 const sortedData = this.sortJson(inputText);
+                const finalData = this.denormalizeToObject(sortedData, inputText);
                 recordCount = sortedData.length;
                 result = this.elements.sortPrettyJson.checked
-                    ? JSON.stringify(sortedData, null, 2)
-                    : JSON.stringify(sortedData);
+                    ? JSON.stringify(finalData, null, 2)
+                    : JSON.stringify(finalData);
             } else if (this.currentMode === 'objectRemover') {
                 const filteredData = this.removeObjects(inputText);
+                const finalData = this.denormalizeToObject(filteredData, inputText);
                 recordCount = filteredData.length;
                 result = this.elements.removerPrettyJson.checked
-                    ? JSON.stringify(filteredData, null, 2)
-                    : JSON.stringify(filteredData);
+                    ? JSON.stringify(finalData, null, 2)
+                    : JSON.stringify(finalData);
             }
 
             this.elements.outputText.value = result;
