@@ -143,7 +143,7 @@ class CSVJSONConverter {
         const dropZoneText = this.elements.dropZone.querySelector('p');
 
         if (mode === 'csvToJson') {
-            this.elements.csvToJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
+            this.elements.csvToJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
             this.elements.inputTitle.textContent = 'Input CSV';
             this.elements.outputTitle.textContent = 'Output JSON';
             this.elements.inputText.placeholder = 'Paste your CSV data here...';
@@ -153,7 +153,7 @@ class CSVJSONConverter {
             this.elements.hasHeaders.parentElement.classList.remove('hidden');
             dropZoneText.textContent = 'Drop your .csv file here or click to browse';
         } else if (mode === 'jsonToCsv') {
-            this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
+            this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Output CSV';
             this.elements.inputText.placeholder = 'Paste your JSON data here...';
@@ -162,7 +162,7 @@ class CSVJSONConverter {
             this.elements.hasHeaders.parentElement.classList.add('hidden');
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'sortJson') {
-            this.elements.sortJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
+            this.elements.sortJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Sorted JSON';
             this.elements.inputText.placeholder = 'Paste your JSON array data here...';
@@ -170,12 +170,12 @@ class CSVJSONConverter {
             this.initializeSortCriteria();
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'tableJson') {
-            this.elements.tableJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
+            this.elements.tableJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
             this.elements.mainContent.classList.add('hidden');
             this.elements.tableJsonLayout.classList.remove('hidden');
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'objectRemover') {
-            this.elements.objectRemoverBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-blue-500 text-white';
+            this.elements.objectRemoverBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Filtered JSON';
             this.elements.inputText.placeholder = 'Paste your JSON array data here...';
@@ -692,7 +692,7 @@ class CSVJSONConverter {
                 if (value === null || value === undefined) {
                     value = '<span class="text-gray-400 italic">null</span>';
                 } else if (typeof value === 'object') {
-                    value = '<span class="text-blue-600 font-mono text-xs">' + JSON.stringify(value) + '</span>';
+                    value = '<span class="text-slate-600 font-mono text-xs">' + JSON.stringify(value) + '</span>';
                 } else if (typeof value === 'boolean') {
                     value = `<span class="text-purple-600 font-medium">${value}</span>`;
                 } else if (typeof value === 'number') {
